@@ -12,3 +12,5 @@ Projeto sendo desenvolvido com referências ao curso do Genilson Medeiros.
 [x] Configurações das propriedades do banco da dados;
 
 [x] Adicionado repositories para cada entidade;
+
+[x] Controllers;
