@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pdvapi.dtos.SaleDTO;
+import com.pdvapi.exceptions.NoItemException;
 import com.pdvapi.services.SaleService;
 
 @RestController
@@ -36,6 +37,8 @@ public class SaleController {
         try {
             saleService.save(saleDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (NoItemException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
