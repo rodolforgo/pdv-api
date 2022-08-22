@@ -18,6 +18,7 @@ import com.pdvapi.entities.ItemSale;
 import com.pdvapi.entities.Product;
 import com.pdvapi.entities.Sale;
 import com.pdvapi.entities.User;
+import com.pdvapi.exceptions.NoItemException;
 import com.pdvapi.repositories.ItemSaleRepository;
 import com.pdvapi.repositories.ProductRepository;
 import com.pdvapi.repositories.SaleRepository;
@@ -89,11 +90,9 @@ public class SaleService {
             itemSale.setProduct(product);
             itemSale.setQuantity(item.getQuantity());
 
-            if (product.getQuantity() == 0) {
-                throw new IllegalArgumentException("A quantidade do produto é 0.");
-            } else if (product.getQuantity() < item.getQuantity()) {
-                throw new IllegalArgumentException("A quantidade do produto é insuficiente.");
-            }
+            if (product.getQuantity() == 0 || product.getQuantity() < item.getQuantity()) {
+                throw new NoItemException(String.format("Estoque indisponível. Quantidade atual: %s.", product.getQuantity()));
+            } 
             
             int total = product.getQuantity() - item.getQuantity();
             product.setQuantity(total);
