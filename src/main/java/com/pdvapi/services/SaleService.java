@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import com.pdvapi.exceptions.InvalidOperationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,8 @@ public class SaleService {
 
     @Transactional
     public Long save(SaleDTO sale) throws Exception {
-        User user = userRepository.findById(sale.getUserId()).get();
+        User user = userRepository.findById(sale.getUserId())
+                .orElseThrow(() -> new NoItemException(("Usuário não encontrado")));
 
         Sale newSale = new Sale();
         newSale.setDate(LocalDate.now());
@@ -84,6 +86,10 @@ public class SaleService {
     }
 
     private List<ItemSale> getItemsSale(List<ProductDTO> products) throws Exception {
+        if (products.isEmpty()) {
+            throw new InvalidOperationException("Não é possível adicionar este item.");
+        }
+
         return products.stream().map(item -> {
             Product product = productRepository.getReferenceById(item.getProductId());
             ItemSale itemSale = new ItemSale();
@@ -92,8 +98,8 @@ public class SaleService {
 
             if (product.getQuantity() == 0 || product.getQuantity() < item.getQuantity()) {
                 throw new NoItemException(String.format("Estoque indisponível. Quantidade atual: %s.", product.getQuantity()));
-            } 
-            
+            }
+
             int total = product.getQuantity() - item.getQuantity();
             product.setQuantity(total);
             productRepository.save(product);
@@ -103,7 +109,8 @@ public class SaleService {
     }
 
     public ItemSaleDTO getById(Long id) {
-        Sale sale = saleRepository.findById(id).get();
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(() -> new NoItemException("Venda não encontrada."));
         return getItemSale(sale);
     }
 }

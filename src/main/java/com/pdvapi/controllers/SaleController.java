@@ -17,10 +17,8 @@ import com.pdvapi.services.SaleService;
 @RestController
 @RequestMapping("/sale")
 public class SaleController {
-
     @Autowired
     private SaleService saleService;
-
 
     @GetMapping
     public ResponseEntity<?> getAll() {
@@ -29,7 +27,11 @@ public class SaleController {
 
     @GetMapping("{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        return new ResponseEntity<>(saleService.getById(id), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(saleService.getById(id), HttpStatus.OK);
+        } catch (NoItemException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping
@@ -40,7 +42,7 @@ public class SaleController {
         } catch (NoItemException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }
