@@ -6,6 +6,7 @@ import com.pdvapi.entities.User;
 import com.pdvapi.exceptions.NoItemException;
 import com.pdvapi.repositories.SaleRepository;
 import com.pdvapi.repositories.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,7 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private SaleRepository saleRepository;
+    private ModelMapper mapper = new ModelMapper();
 
     public List<UserDTO> findAll() {
         return userRepository.findAll().stream().map(user ->
@@ -28,11 +27,7 @@ public class UserService {
     }
 
     public UserDTO save(UserDTO userDTO) {
-        User userToSave = new User();
-
-        userToSave.setEnabled(userDTO.getIsEnabled());
-        userToSave.setName(userDTO.getName());
-
+        User userToSave = mapper.map(userDTO, User.class);
         userRepository.save(userToSave);
         return new UserDTO(userToSave.getId(), userToSave.getName(), userToSave.isEnabled());
     }
@@ -55,10 +50,7 @@ public class UserService {
             throw new NoItemException("Usuário não  encontrado.");
         }
 
-        User userToEdit = new User();
-        userToEdit.setId(userDTO.getId());
-        userToEdit.setName(userDTO.getName());
-        userToEdit.setEnabled(userDTO.getIsEnabled());
+        User userToEdit = mapper.map(userDTO, User.class);
 
         userRepository.save(userToEdit);
         return new UserDTO(userToEdit.getId(), userToEdit.getName(), userToEdit.isEnabled());
